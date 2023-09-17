@@ -10,7 +10,11 @@
 		26F882C12AB725590094945F /* FractalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882C02AB725590094945F /* FractalApp.swift */; };
 		26F882C32AB725590094945F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882C22AB725590094945F /* ContentView.swift */; };
 		26F882C52AB7255A0094945F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26F882C42AB7255A0094945F /* Assets.xcassets */; };
-		26F882C82AB7255A0094945F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 26F882C72AB7255A0094945F /* Preview Assets.xcassets */; };
+		26F882D32AB726640094945F /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882D22AB726640094945F /* MetalView.swift */; };
+		26F882D52AB727160094945F /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882D42AB727160094945F /* Settings.swift */; };
+		26F882D82AB728510094945F /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882D72AB728510094945F /* Core.swift */; };
+		26F882DA2AB728590094945F /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26F882D92AB728590094945F /* Renderer.swift */; };
+		26F882DC2AB728610094945F /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 26F882DB2AB728610094945F /* Shader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -18,8 +22,13 @@
 		26F882C02AB725590094945F /* FractalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FractalApp.swift; sourceTree = "<group>"; };
 		26F882C22AB725590094945F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		26F882C42AB7255A0094945F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		26F882C72AB7255A0094945F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		26F882C92AB7255A0094945F /* Fractal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Fractal.entitlements; sourceTree = "<group>"; };
+		26F882D22AB726640094945F /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
+		26F882D42AB727160094945F /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		26F882D62AB727E90094945F /* Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
+		26F882D72AB728510094945F /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		26F882D92AB728590094945F /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		26F882DB2AB728610094945F /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,21 +61,42 @@
 		26F882BF2AB725590094945F /* Fractal */ = {
 			isa = PBXGroup;
 			children = (
-				26F882C02AB725590094945F /* FractalApp.swift */,
-				26F882C22AB725590094945F /* ContentView.swift */,
-				26F882C42AB7255A0094945F /* Assets.xcassets */,
-				26F882C92AB7255A0094945F /* Fractal.entitlements */,
-				26F882C62AB7255A0094945F /* Preview Content */,
+				26F882D12AB726590094945F /* Core */,
+				26F882D02AB7264D0094945F /* Application */,
+				26F882CF2AB725FB0094945F /* Package */,
 			);
 			path = Fractal;
 			sourceTree = "<group>";
 		};
-		26F882C62AB7255A0094945F /* Preview Content */ = {
+		26F882CF2AB725FB0094945F /* Package */ = {
 			isa = PBXGroup;
 			children = (
-				26F882C72AB7255A0094945F /* Preview Assets.xcassets */,
+				26F882C42AB7255A0094945F /* Assets.xcassets */,
+				26F882C92AB7255A0094945F /* Fractal.entitlements */,
 			);
-			path = "Preview Content";
+			path = Package;
+			sourceTree = "<group>";
+		};
+		26F882D02AB7264D0094945F /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				26F882C02AB725590094945F /* FractalApp.swift */,
+				26F882C22AB725590094945F /* ContentView.swift */,
+				26F882D22AB726640094945F /* MetalView.swift */,
+				26F882D42AB727160094945F /* Settings.swift */,
+				26F882D62AB727E90094945F /* Common.h */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		26F882D12AB726590094945F /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				26F882D72AB728510094945F /* Core.swift */,
+				26F882D92AB728590094945F /* Renderer.swift */,
+				26F882DB2AB728610094945F /* Shader.metal */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,7 +157,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26F882C82AB7255A0094945F /* Preview Assets.xcassets in Resources */,
 				26F882C52AB7255A0094945F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,7 +168,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26F882D32AB726640094945F /* MetalView.swift in Sources */,
 				26F882C32AB725590094945F /* ContentView.swift in Sources */,
+				26F882D52AB727160094945F /* Settings.swift in Sources */,
+				26F882D82AB728510094945F /* Core.swift in Sources */,
+				26F882DA2AB728590094945F /* Renderer.swift in Sources */,
+				26F882DC2AB728610094945F /* Shader.metal in Sources */,
 				26F882C12AB725590094945F /* FractalApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -265,7 +299,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Fractal/Fractal.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fractal/Package/Fractal.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -283,6 +317,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = romanroux.Fractal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = Fractal/Application/Common.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -292,7 +327,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Fractal/Fractal.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fractal/Package/Fractal.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -310,6 +345,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = romanroux.Fractal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = Fractal/Application/Common.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
