@@ -4,14 +4,25 @@
 #define Common_h
 #import <simd/simd.h>
 
-typedef struct {
+
+
+typedef struct{
     simd_uint2 boundaries;
     float scale;
-    simd_float2 CConst;
-    uint maxItt;
+
     
+    
+} Common;
+
+typedef struct {
+    uint maxItt;
+    simd_float2 COffset;
     
 }MandelBrotSettings;
 
-
+typedef struct{
+    uint maxItt;
+    simd_float2 CConst;
+    
+} ReverseMandelBrotSettings;
 #endif /* Common_h */
