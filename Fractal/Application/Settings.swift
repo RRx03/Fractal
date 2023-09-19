@@ -7,4 +7,7 @@ struct Preferences {
     static var CConst : [Float] = [0, 0]
     static var maxItterations : UInt32 = 50
     
+    
+    static var scaleFactor : Float = 0.001
+    
 }

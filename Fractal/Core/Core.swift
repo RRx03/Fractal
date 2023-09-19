@@ -23,12 +23,13 @@ class Core : NSObject{
 }
 extension Core : MTKViewDelegate  {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        Renderer.settings.boundaries.x = UInt32(size.width)
-        Renderer.settings.boundaries.y = UInt32(size.height)
+        Renderer.mandelbrot.boundaries.x = UInt32(size.width)
+        Renderer.mandelbrot.boundaries.y = UInt32(size.height)
     }
     
     func draw(in view: MTKView) {
         
+        Renderer.mandelbrot.scale += Preferences.scaleFactor
         renderer.render(view: view)
         
         

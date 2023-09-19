@@ -6,12 +6,12 @@
 
 typedef struct {
     simd_uint2 boundaries;
-    simd_float2 range;
+    float scale;
     simd_float2 CConst;
     uint maxItt;
     
     
-}Settings;
+}MandelBrotSettings;
 
 
 #endif /* Common_h */
