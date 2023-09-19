@@ -6,10 +6,22 @@ class Renderer {
     static var device : MTLDevice!
     static var commandQueue : MTLCommandQueue!
     static var library : MTLLibrary!
-    static var settings : Settings = Settings(boundaries: [UInt32(0), UInt32(0)], range: [Preferences.range[0], Preferences.range[1]], CConst: [Preferences.CConst[0], Preferences.CConst[0]], maxItt: Preferences.maxItterations)
+    static var mandelbrot : MandelBrotSettings = MandelBrotSettings(maxItt: MandelBrotPreferences.maxItterations, COffset: [MandelBrotPreferences.initialCOffset[0], MandelBrotPreferences.initialCOffset[1]])
+    static var reverseMandelBrot : ReverseMandelBrotSettings = ReverseMandelBrotSettings(maxItt: ReverseMandelBrotPreferences.maxItterations, CConst: [ReverseMandelBrotPreferences.CConst[0], ReverseMandelBrotPreferences.CConst[1]])
+    static var common : Common = Common(boundaries: [UInt32(0), UInt32(0)], scale: Preferences.initialScale)
+    static var random : [Random] = [Random(state: 0)]
+    
+    var RenderScreen: MTLTexture!
+    var RenderScreenDescriptor: MTLTextureDescriptor!
 
     
-    var ComputePipelineState : MTLComputePipelineState
+    var randomBuffer : MTLBuffer!
+    
+    
+    var ComputePipelineStateMandelBrot : MTLComputePipelineState
+    var ComputePipelineStateMandelBrotOffset : MTLComputePipelineState
+    var ComputePipelineStateReverseMandelBrot : MTLComputePipelineState
+
 
     
     
@@ -17,14 +29,30 @@ class Renderer {
         
         Renderer.device = MTLCreateSystemDefaultDevice()
         Renderer.commandQueue = Renderer.device.makeCommandQueue()
-        
+        randomBuffer = Renderer.device.makeBuffer(bytes: &Renderer.random, length: MemoryLayout<Random>.stride)
+
+        RenderScreenDescriptor = MTLTextureDescriptor()
+        RenderScreenDescriptor.textureType = .type2D
+        RenderScreenDescriptor.pixelFormat = .bgra8Unorm
+        RenderScreenDescriptor.width = Int(Preferences.windowWidth*2)
+        RenderScreenDescriptor.height = Int(Preferences.windowHeight*2)
+        RenderScreenDescriptor.usage = [.shaderRead, .shaderWrite]
+        RenderScreen = Renderer.device.makeTexture(descriptor: RenderScreenDescriptor)
         
         let library = Renderer.device.makeDefaultLibrary()
         Renderer.library = library
-        let kernel = library?.makeFunction(name: "Kernel")
+        let MandelBrotFractal = library?.makeFunction(name: "MandelBrot")
+        let MandelBrotOffsetFractal = library?.makeFunction(name: "MandelBrotOffset")
+        let ReverseMandelBrotFractal = library?.makeFunction(name: "ReverseMandelBrot")
+
+
         
         do{
-            ComputePipelineState = try Renderer.device.makeComputePipelineState(function: kernel!)
+            ComputePipelineStateMandelBrot = try Renderer.device.makeComputePipelineState(function: MandelBrotFractal!)
+            ComputePipelineStateMandelBrotOffset = try Renderer.device.makeComputePipelineState(function: MandelBrotOffsetFractal!)
+            ComputePipelineStateReverseMandelBrot = try Renderer.device.makeComputePipelineState(function: ReverseMandelBrotFractal!)
+
+
         }catch {
          fatalError("Fail")
         }
@@ -40,21 +68,77 @@ class Renderer {
         let commandEncoder = commandBuffer.makeComputeCommandEncoder()!
         guard let drawable: CAMetalDrawable = view.currentDrawable else { return }
 
-        
-        
-        var threadsPerGrid: MTLSize
-        var threadsPerThreadgroup: MTLSize
+        switch(Preferences.fractalID){
+            
+        case 1:
+            
+            var threadsPerGrid: MTLSize
+            var threadsPerThreadgroup: MTLSize
 
-        let w: Int = ComputePipelineState.threadExecutionWidth
-        let h: Int = ComputePipelineState.maxTotalThreadsPerThreadgroup / w
+            let w: Int = ComputePipelineStateMandelBrotOffset.threadExecutionWidth
+            let h: Int = ComputePipelineStateMandelBrotOffset.maxTotalThreadsPerThreadgroup / w
+            
+            commandEncoder.setComputePipelineState(ComputePipelineStateMandelBrotOffset)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
+            commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
+            commandEncoder.setBytes(&Renderer.mandelbrot, length: MemoryLayout<MandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
+            threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
+            threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
+            commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+            break;
+            
+            
+        case 2:
+            
+            var threadsPerGrid: MTLSize
+            var threadsPerThreadgroup: MTLSize
+
+            let w: Int = ComputePipelineStateReverseMandelBrot.threadExecutionWidth
+            let h: Int = ComputePipelineStateReverseMandelBrot.maxTotalThreadsPerThreadgroup / w
+            
+            commandEncoder.setComputePipelineState(ComputePipelineStateReverseMandelBrot)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
+            commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
+            commandEncoder.setBytes(&Renderer.reverseMandelBrot, length: MemoryLayout<ReverseMandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
+
+            threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
+            threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
+            commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+            break;
         
-        commandEncoder.setComputePipelineState(ComputePipelineState)
-        commandEncoder.setTexture(drawable.texture, index: 0)
-        commandEncoder.setTexture(drawable.texture, index: 1)
-        commandEncoder.setBytes(&Renderer.settings, length: MemoryLayout<Settings>.stride, index: 10)
-        threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
-        threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
-        commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+            
+            
+        default:
+            var threadsPerGrid: MTLSize
+            var threadsPerThreadgroup: MTLSize
+
+            let w: Int = ComputePipelineStateMandelBrot.threadExecutionWidth
+            let h: Int = ComputePipelineStateMandelBrot.maxTotalThreadsPerThreadgroup / w
+            
+            commandEncoder.setComputePipelineState(ComputePipelineStateMandelBrot)
+            commandEncoder.setTexture(drawable.texture, index: 0)
+            commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
+            commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
+            commandEncoder.setBytes(&Renderer.mandelbrot, length: MemoryLayout<MandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
+
+            threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
+            threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
+            commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+            
+        }
+        
+        
         
         commandEncoder.endEncoding()
         commandBuffer.present(drawable)
