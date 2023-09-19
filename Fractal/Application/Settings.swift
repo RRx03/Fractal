@@ -5,14 +5,14 @@ struct Preferences {
     static var windowHeight : CGFloat = 1000
     static var fractalID : Int = 2
     
-    static var initialScale : Float = 1
+    static var initialScale : Float = 0.8
     static var scaleFactor : Float = 10
     
     
     
 }
 struct MandelBrotPreferences {
-    static var maxItterations : UInt32 = 500
+    static var maxItterations : UInt32 = 100
     
     static var initialCOffset : [Float] = [0, 0]
     static var COffsetFactors : [Float] = [0, 0]

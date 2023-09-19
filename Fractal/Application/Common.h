@@ -9,10 +9,15 @@
 typedef struct{
     simd_uint2 boundaries;
     float scale;
-
     
     
 } Common;
+
+typedef struct {
+    uint state;
+    
+    
+}Random;
 
 typedef struct {
     uint maxItt;

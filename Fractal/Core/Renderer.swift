@@ -9,6 +9,14 @@ class Renderer {
     static var mandelbrot : MandelBrotSettings = MandelBrotSettings(maxItt: MandelBrotPreferences.maxItterations, COffset: [MandelBrotPreferences.initialCOffset[0], MandelBrotPreferences.initialCOffset[1]])
     static var reverseMandelBrot : ReverseMandelBrotSettings = ReverseMandelBrotSettings(maxItt: ReverseMandelBrotPreferences.maxItterations, CConst: [ReverseMandelBrotPreferences.CConst[0], ReverseMandelBrotPreferences.CConst[1]])
     static var common : Common = Common(boundaries: [UInt32(0), UInt32(0)], scale: Preferences.initialScale)
+    static var random : [Random] = [Random(state: 0)]
+    
+    var RenderScreen: MTLTexture!
+    var RenderScreenDescriptor: MTLTextureDescriptor!
+
+    
+    var randomBuffer : MTLBuffer!
+    
     
     var ComputePipelineStateMandelBrot : MTLComputePipelineState
     var ComputePipelineStateMandelBrotOffset : MTLComputePipelineState
@@ -21,7 +29,15 @@ class Renderer {
         
         Renderer.device = MTLCreateSystemDefaultDevice()
         Renderer.commandQueue = Renderer.device.makeCommandQueue()
-        
+        randomBuffer = Renderer.device.makeBuffer(bytes: &Renderer.random, length: MemoryLayout<Random>.stride)
+
+        RenderScreenDescriptor = MTLTextureDescriptor()
+        RenderScreenDescriptor.textureType = .type2D
+        RenderScreenDescriptor.pixelFormat = .bgra8Unorm
+        RenderScreenDescriptor.width = Int(Preferences.windowWidth*2)
+        RenderScreenDescriptor.height = Int(Preferences.windowHeight*2)
+        RenderScreenDescriptor.usage = [.shaderRead, .shaderWrite]
+        RenderScreen = Renderer.device.makeTexture(descriptor: RenderScreenDescriptor)
         
         let library = Renderer.device.makeDefaultLibrary()
         Renderer.library = library
@@ -65,8 +81,11 @@ class Renderer {
             commandEncoder.setComputePipelineState(ComputePipelineStateMandelBrotOffset)
             commandEncoder.setTexture(drawable.texture, index: 0)
             commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
             commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
             commandEncoder.setBytes(&Renderer.mandelbrot, length: MemoryLayout<MandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
             threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
             threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
             commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
@@ -84,8 +103,12 @@ class Renderer {
             commandEncoder.setComputePipelineState(ComputePipelineStateReverseMandelBrot)
             commandEncoder.setTexture(drawable.texture, index: 0)
             commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
             commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
             commandEncoder.setBytes(&Renderer.reverseMandelBrot, length: MemoryLayout<ReverseMandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
+
             threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
             threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
             commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
@@ -103,8 +126,12 @@ class Renderer {
             commandEncoder.setComputePipelineState(ComputePipelineStateMandelBrot)
             commandEncoder.setTexture(drawable.texture, index: 0)
             commandEncoder.setTexture(drawable.texture, index: 1)
+            commandEncoder.setTexture(RenderScreen, index: 2)
+            commandEncoder.setTexture(RenderScreen, index: 3)
             commandEncoder.setBytes(&Renderer.common, length: MemoryLayout<Common>.stride, index: 10)
             commandEncoder.setBytes(&Renderer.mandelbrot, length: MemoryLayout<MandelBrotSettings>.stride, index: 11)
+            commandEncoder.setBuffer(randomBuffer, offset: 0, index: 12)
+
             threadsPerGrid = MTLSize(width: drawable.texture.width, height: drawable.texture.height, depth: 1)
             threadsPerThreadgroup = MTLSize(width: w, height: h, depth: 1)
             commandEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
