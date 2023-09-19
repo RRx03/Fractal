@@ -22,12 +22,14 @@ kernel void Kernel (texture2d<half, access::read> textureIn [[texture(1)]],
                     uint2 id [[thread_position_in_grid]]){
     
     
+    
+    
     float2 signedPositions = float2(id)-float2(settings.boundaries)/2;
     signedPositions /= float2(settings.boundaries)/2;
     
     float2 Const = float2(signedPositions.x, signedPositions.y);
     uint grayScale = computeItterations(float2(0, 0), Const, settings.maxItt);
-    float grayValue = float(grayScale)/settings.maxItt;
+    float grayValue = float(grayScale)/settings.maxItt; //Modifier Gradient
     
     textureOut.write(half4(grayValue, grayValue, grayValue, 1), id);
 
